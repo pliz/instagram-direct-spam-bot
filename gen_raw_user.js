@@ -3,7 +3,7 @@ const instaTouch = require("instatouch");
 (async () => {
   try {
     const POST = "https://www.instagram.com/p/CIvLPrylfPi";
-    const SESSION_ID = "sessionid=33953216539%3AbFk9uuYAQB0Ijw%3A19";
+    const SESSION_ID = "";
     const NUMBER = 200;
     const FILE_NAME = "user_raw";
     const FILE_PATH = "/home/eagle/d/myapp/cassinelli/dir-spam-bot";
