@@ -1,3 +1,6 @@
 geckodriver.log
 user_raw.json
 user.json
+old
+gen_raw_user.sh
+req_follow.py
