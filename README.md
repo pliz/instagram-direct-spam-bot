@@ -5,7 +5,11 @@ This bot send a message to a list of users with Instagram direct
 # How to use
 
 ## Installation and config
-- Install nodejs and python3
+- Install:
+  - [Firefox browser](https://www.mozilla.org/it/firefox/new/)
+  - [Geckodriver](https://github.com/mozilla/geckodriver/releases)
+  - [Python3](https://www.python.org/downloads/release/python-385/)
+  - [Node.js](https://nodejs.org/)
 
 - Install modules:
 
