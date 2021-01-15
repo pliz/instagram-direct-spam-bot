@@ -17,10 +17,9 @@ This bot send a message to a list of users with Instagram direct
   pip3 install selenium
   npm install instatouch -g
   ```
-- Config gen_raw_user.js variables
+- Config gen_raw_user.js variables:
+  - [sessionid](https://drive.google.com/file/d/1ECEDySAY9RLUBGRlQnBvU-gP6vft-MWt/view?usp=sharing)
+- Config main.py variables
 ## Start bot
 - Run ```py parse_user_json.py``` to generate users json list
-- Run ```py main.py``` to start bot
-  ```
-  After start bot you have 40 seconds to login
-  ```
+- Run ```py main.py``` to start bot, after login Firefox will ask you to activate notifications, click yes

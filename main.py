@@ -1,17 +1,22 @@
 from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.action_chains import ActionChains
 from selenium.common.exceptions import ElementClickInterceptedException
 from selenium.webdriver.firefox.options import Options
 import time
 import json
-HEADLESS=False
+
+HEADLESS=False#don't set to True
+MESSAGE = ''''''#enter message
+USERNAME = ""#enter username
+PASSWORD = ""#enter password
+
 count = 0
-MESSAGE = '''Ciao, ho visto che sei molto interessato/a a giochi tipo ROBLOX, CLASH ROYALE, BRAWL STARS, ecc. 🎮Noi di @123_black.galaxy abbiamo da poco aperto un canale DISCORD e siamo molto interessati a tutti questi giochi 🎯. Se entri e ci aiuti a gestire il server, anche ovviamente GIOCANDO con altre persone, potremmo darti un ruolo importante sul server e in futuro potresti essere uno dei CAPI della community che si sta INGRANDENDO molto RAPIDAMENTE 👑💸. Se sei interessato/a a partecipare contattaci in PRIVATO o clicca il LINK nella BIO di 123_black.galaxy per entrare nel server 📈🇮🇹'''
+
 class Bot:
-    def __init__(self, message):
+    def __init__(self, message, driver):
         self.message = message
+        self.driver = driver
     def send_in_dir(self):#questa funzione manda il messaggio
+        driver = self.driver
         time.sleep(3)    
         messagelabel = driver.find_element_by_xpath("/html/body/div[1]/section/div/div[2]/div/div/div[2]/div[2]/div/div[2]/div/div/div[2]/textarea")
         messagelabel.send_keys(self.message)#selezione label di inseriemto e inserimeto del testo
@@ -19,6 +24,7 @@ class Bot:
         send_button.click()#click sul pulsante
         print("send")
     def send(self, passed_user):
+        driver = self.driver
         user = passed_user#ricevenet
         driver.get(f"https://www.instagram.com/{user}")#apertura profilo ricevente
         try:
@@ -42,39 +48,53 @@ class Bot:
             time.sleep(0.3)
             driver.execute_script('''document.querySelector("body > div.RnEpo.Yx5HN > div > div > div > div.mt3GC > button.aOOlW.-Cab_").click()''')
             '''esecuzuione script javascript che si disiscrive dal utente'''
-            time.sleep(0.2)
+            time.sleep(0.5)
         except Exception as errror:
             print(errror)
         
-myoptions = Options()
-myoptions.headless = HEADLESS
-driver = webdriver.Firefox(options=myoptions)
-driver.get("https://instagram.com")
-
-# while True:
-#     action = input("...")
-#     bot = Bot(MESSAGE)
-#     if action=="s":
-#         bot.send("cassinellimarco.official")
-#     elif action== "b":
-#         break
-#     else:
-#         print("boh")
-for n in range(40):
+def login(headless, username, password):
+    myoptions = Options()
+    myoptions.headless = headless
+    driver = webdriver.Firefox(options=myoptions)
+    driver.get("https://instagram.com")
     time.sleep(1)
-    print(n+1)
+    driver.execute_script('''document.querySelector("body > div.RnEpo.Yx5HN > div > div > div > div.mt3GC > button.aOOlW.bIiDR").click()''')
+    time.sleep(2)
+    username_inp = driver.find_element_by_xpath("/html/body/div[1]/section/main/article/div[2]/div[1]/div/form/div/div[1]/div/label/input")
+    username_inp.send_keys(username)
+    time.sleep(2)
+    password_inp = driver.find_element_by_xpath("/html/body/div[1]/section/main/article/div[2]/div[1]/div/form/div/div[2]/div/label/input")
+    password_inp.send_keys(password)
+    time.sleep(2)
+    driver.execute_script('''document.querySelector("#loginForm > div > div:nth-child(3) > button").click()''')
+    time.sleep(6)
+    driver.execute_script('''document.querySelector("#react-root > section > main > div > div > div > section > div > button").click()''')
+    time.sleep(10)
+    driver.find_element_by_xpath("/html/body/div[5]/div/div/div/div[3]/button[1]").click()
+    time.sleep(3)
+    
+    return driver
 
-with open("user.json") as users_list_file:
-    global users_list
-    users_list = json.load(users_list_file)
-bot = Bot(MESSAGE)
-for user in users_list:
-    count+=1
-    print(count)
+if __name__ == "__main__":
     try:
-        bot.send(user["username"])
+        driver = login(HEADLESS, USERNAME, PASSWORD)
     except Exception as errror:
+        print("error in login:")
         print(errror)
-        pass
-
-driver.quit()
+        exit()
+   
+    with open("user.json") as users_list_file:
+        global users_list
+        users_list = json.load(users_list_file)
+    bot = Bot(MESSAGE, driver)
+    for user in users_list:
+        count+=1
+        print(count)
+        try:
+            bot.send(user["username"])
+        except Exception as errror:
+            print(errror)
+            pass
+    print("finish")
+    driver.quit()
+    exit()
