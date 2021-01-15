@@ -15,6 +15,7 @@ class Bot:
     def __init__(self, message, driver):
         self.message = message
         self.driver = driver
+
     def send_in_dir(self):#questa funzione manda il messaggio
         driver = self.driver
         time.sleep(3)    
@@ -23,6 +24,7 @@ class Bot:
         send_button = driver.find_element_by_xpath("/html/body/div[1]/section/div/div[2]/div/div/div[2]/div[2]/div/div[2]/div/div/div[3]/button")#selezione pulsante per invio
         send_button.click()#click sul pulsante
         print("send")
+
     def send(self, passed_user):
         driver = self.driver
         user = passed_user#ricevenet
@@ -82,7 +84,6 @@ if __name__ == "__main__":
         print("error in login:")
         print(errror)
         exit()
-   
     with open("user.json") as users_list_file:
         global users_list
         users_list = json.load(users_list_file)
