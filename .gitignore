@@ -6,3 +6,13 @@ gen_raw_user.sh
 req_follow.py
 secret.txt
 user copy.json
+galaxy
+hypergram
+user_old.json
+.vscode
+__pycache__
+merge_user.py
+get_followers.py
+test.py
+users_test.json
+config.json
