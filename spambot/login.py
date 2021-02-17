@@ -3,6 +3,7 @@ from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
 
 def login(username, password, headless=True):
+    print("start login")
     profile = webdriver.FirefoxProfile()
     # authorize notificatrion
     profile.set_preference('permissions.default.desktop-notification', 1)
@@ -26,13 +27,17 @@ def login(username, password, headless=True):
     password_inp.send_keys(password)
     time.sleep(2)
     driver.execute_script(
-        '''document.querySelector("#loginForm > div > div:nth-child(3) > button").click()''')
-    time.sleep(6)#submit credentials
-    driver.execute_script(
-        '''document.querySelector("#react-root > section > main > div > div > div > section > div > button").click()''')
+        '''document.querySelector("#loginForm > div > div:nth-child(3) > button").click()''')#submit credentials
+    
+    time.sleep(6)
+    try:#se trova il rpompt che chiede di salvare le credenziali lo accetta
+        driver.execute_script(
+'''document.querySelector("#react-root > section > main > div > div > div > section > div > button").click()''')#save credentials
+    except Exception as error:
+        print("message not found")
     print("login finish")
-    time.sleep(7)#save credentials
-    for cookie in driver.get_cookies():
+    time.sleep(7)
+    for cookie in driver.get_cookies():#get session id from cookie
         if cookie["name"] == "sessionid":
             sessionid = cookie["value"]
             break

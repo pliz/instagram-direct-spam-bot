@@ -1,20 +1,23 @@
 import subprocess
 import json
 import time
+from datetime import datetime
 
 def get_users_from_like( post, sessionid, count, start_from):
+    #questa funzione esegue lo script javascript e raccoglie l'output json
+    #output : persone che hanno messo like alla page indicata
     command = f'''/usr/bin/node "/home/eagle/d/myapp/cassinelli/dir-spam-bot/spambot/scrape_post.js" "{post}" "{sessionid}" {count} {start_from}'''
     output = str(subprocess.check_output(command, shell=True)).replace("b'", "").replace("'", "")
     users_dict = json.loads(output)
     return users_dict
 
 
-def pages_scraper(driver, page, req_number=50, start_from=1):
+def pages_scraper(driver, page, req_number=50, start_from=1, export=False):
     first=True
     count_req = 0
-    users_raw = []
-    users= []
-    next_page = ""
+    users_raw = []#dict per i dati raw presi dale api
+    users= []#dict per i dati selezionati
+    next_page = ""#pagina seguente delle api
     users_scraped = 0
     change = 0
     driver.get(f"view-source:https://www.instagram.com/{page}/?__a=1")#get user id
@@ -121,8 +124,22 @@ def pages_scraper(driver, page, req_number=50, start_from=1):
             del user_node["follows_viewer"]
             users.append(user_node)
             final_users_list_count+=1
+
+    if export:
+        try:
+            now = datetime.now()
+            file_name = now.strftime("%d-%m-%Y-%H-%M-%S.json")
+            with open(file_name, "w") as export_file:
+                json_export = json.dumps(users)
+                export_file.write(json_export)
+        except Exception as error:
+            print("error during json export:")
+            print(error)
+
     print("parsed user... "+ str(final_users_list_count))
     return users
+
+
 
 
 if __name__ == "__main__":

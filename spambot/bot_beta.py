@@ -12,15 +12,10 @@ class Bot:
     def send_in_dir(self):  # questa funzione manda il messaggio
         driver = self.driver
         time.sleep(3)
-        try:
-            if self.check:#check if message is sent in past
-                html_chat = driver.execute_script('''return (document.querySelector("#react-root > section > div > div.Igw0E.IwRSH.eGOV_._4EzTm > div > div > div.DPiy6.Igw0E.IwRSH.eGOV_.vwCYk > div.uueGX > div > div.Igw0E.IwRSH.hLiUi.vwCYk > div").innerHTML)''')
-                if self.check in html_chat:
-                    return "send-past"
-        except Exception as error:
-            print("error in check")
-            print(error)
-            pass
+        if self.check:#check if message is sent in past
+            html_chat = driver.execute_script('''return (document.querySelector("#react-root > section > div > div.Igw0E.IwRSH.eGOV_._4EzTm > div > div > div.DPiy6.Igw0E.IwRSH.eGOV_.vwCYk > div.uueGX > div > div.Igw0E.IwRSH.hLiUi.vwCYk > div").innerHTML)''')
+            if self.check in html_chat:
+                return "send-past"
         time.sleep(0.3)
         messagelabel = driver.find_element_by_xpath(
             "/html/body/div[1]/section/div/div[2]/div/div/div[2]/div[2]/div/div[2]/div/div/div[2]/textarea")
