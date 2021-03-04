@@ -1,6 +1,7 @@
 import subprocess
 import json
 import time
+import os
 from datetime import datetime
 
 def get_users_from_like( post, sessionid, count, start_from):
@@ -12,7 +13,7 @@ def get_users_from_like( post, sessionid, count, start_from):
     return users_dict
 
 
-def pages_scraper(driver, page, req_number=50, start_from=1, export=False):
+def old_pages_scraper(driver, page, req_number=50, start_from=1, export=False):
     first=True
     count_req = 0
     users_raw = []#dict per i dati raw presi dale api
@@ -137,6 +138,101 @@ def pages_scraper(driver, page, req_number=50, start_from=1, export=False):
             print(error)
 
     print("parsed user... "+ str(final_users_list_count))
+    return users
+
+
+def pages_scraper(driver, page,req_number=50, start_from=1, export=False):
+    first = True
+    if req_number < 50:
+        req_number = 50
+    users = []
+    count_req = 0
+    next_page = ""
+    user_pass = 0
+    driver.get(f"view-source:https://www.instagram.com/{page}/?__a=1")#get user id
+    page_source = driver.page_source
+    page_source = driver.find_element_by_tag_name("pre").text
+    insta_id = (json.loads(page_source))["graphql"]["user"]["id"]
+    while len(users) < req_number:
+        time.sleep(1.3)
+        if first:
+            print("prima richiesta")
+            count_req +=1
+            next_page = ""
+            driver.get('''view-source:https://www.instagram.com/graphql/query/?query_hash=5aefa9893005572d237da5068082d8d5&variables={"id":"'''+ insta_id+'''","include_reel":false,"fetch_mutual":false,"first":50}''')
+            try:
+                users_html = driver.page_source
+                users_html = driver.find_element_by_tag_name("pre").text
+                users_json = (json.loads(users_html))["data"]["user"]["edge_followed_by"]
+                for user_raw in users_json["edges"]:
+                    if not user_raw["node"]["is_private"]:
+                        if user_pass <= start_from:
+                            start_from += 1
+                            pass
+                        else:
+                            user_node = user_raw["node"]
+                            del user_node["profile_pic_url"]
+                            del user_node["followed_by_viewer"]
+                            del user_node["requested_by_viewer"]
+                            del user_node["follows_viewer"]
+                            users.append(user_node)
+                if users_json["page_info"]["has_next_page"]:
+                    next_page = users_json["page_info"]["end_cursor"]
+                else:
+                    break
+                first = False
+            except Exception as error:
+                print(error)
+                print(count_req)
+                continue
+
+        else:
+            count_req+=1
+            driver.get('''view-source:https://www.instagram.com/graphql/query/?query_hash=5aefa9893005572d237da5068082d8d5&variables={"id":"'''+ insta_id+'''","include_reel":false,"fetch_mutual":false,"first":50,"after":"'''+next_page+'''"}''')
+            try:
+                users_html = driver.page_source
+                users_html = driver.find_element_by_tag_name("pre").text
+                users_json = (json.loads(users_html))["data"]["user"]["edge_followed_by"]
+                for user_raw in users_json["edges"]:
+                    if not user_raw["node"]["is_private"]:
+                        if user_pass <= start_from:
+                            user_pass += 1
+                            pass
+                        else:
+                            user_node = user_raw["node"]
+                            del user_node["profile_pic_url"]
+                            del user_node["followed_by_viewer"]
+                            del user_node["requested_by_viewer"]
+                            del user_node["follows_viewer"]
+                            users.append(user_node)
+                if users_json["page_info"]["has_next_page"]:
+                    next_page = users_json["page_info"]["end_cursor"]
+                else:
+                    break
+                first = False
+            except Exception as error:
+                print(error)
+                if error == "data":
+                    time.sleep(2)
+                print(count_req)
+                continue
+        
+        print(len(users))
+        print(count_req)
+
+    if export:
+        try:
+            if not os.path.isdir('./logs'):
+                os.mkdir("logs")
+            now = datetime.now()
+            file_name = now.strftime("logs/%d-%m-%Y-%H-%M-%S.json")
+            with open(file_name, "w") as export_file:
+                json_export = json.dumps(users)
+                export_file.write(json_export)
+        except Exception as error:
+            print("error during json export:")
+            print(error)
+
     return users
 
 
