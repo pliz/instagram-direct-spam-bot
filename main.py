@@ -9,14 +9,21 @@ send_message = 0
 message_already_sent = 0
 not_send_message = 0
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-c", type=str)
     total_start_time = time.time()
+    check_config=None
     with open("config.json", "r") as config:
         config_dict = json.load(config)
+    #config_to_use = int(input("chose configuration..."))
+    args = parser.parse_args()
+    if args.c:
+        config_to_use = int(args.c)
+    else:
+        for configuration in config_dict:
+            print(str(config_dict.index(configuration)) + " "+ configuration["name"])
+        config_to_use = int(input("chose configuration..."))
 
-    for configuration in config_dict:
-        print(str(config_dict.index(configuration)) + " "+ configuration["name"])
-
-    config_to_use = int(input("chose configuration..."))
     for configuration in config_dict:
         if config_dict.index(configuration)==config_to_use:
             username = configuration["username"]
@@ -27,8 +34,12 @@ if __name__ == "__main__":
             message = configuration["message"]
             check_word = configuration["check_word"]
             sleep_time = configuration["time"]
+            check_config=True
             print("you choose..."+str(configuration["name"]))
             break
+    if not check_config:
+        print("config non trovata")
+        exit()
     if sleep_time:
         print("aspetto..."+ str(sleep_time))
         sleep_time = sleep_time * 60
@@ -38,7 +49,7 @@ if __name__ == "__main__":
 
     #inizializzazione driver con login
     try:
-        personal_login = login(username, password)
+        personal_login = login(username, password, headless=False)
         myuser = personal_login["driver"]
         current_sessionid = "sessionid="+personal_login["sessionid"]
     except Exception as error:
@@ -51,7 +62,10 @@ if __name__ == "__main__":
         users = pages_scraper(myuser, page_for_users, req_number=count, start_from=start_from, export=True)
         print("finish get users")
     except Exception as error:
+        print("error in get users:")
         print(error)
+        exit()
+
 
     #inizializzazione bot
     message = str(message)
@@ -86,5 +100,3 @@ if __name__ == "__main__":
     "\nmessagi non inviati: "+str(not_send_message)+
     "\ntotal time: "+str(total_time)
     )
-
-
